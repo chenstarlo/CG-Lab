@@ -14,26 +14,26 @@
 
 Phong 光照模型将物体表面反射的光分为三个独立分量：
 
-$$I = I_{ambient} + I_{diffuse} + I_{specular}$$
+$$I = I_{环境光} + I_{漫反射} + I_{镜面高光}$$
 
-### 环境光 (Ambient)
+### 环境光
 模拟场景中经过多次反射后均匀分布的背景光：
-$$I_{ambient} = K_a \times C_{light} \times C_{object}$$
+$$I_{环境光} = K_a \times C_{光源} \times C_{物体}$$
 
-### 漫反射 (Diffuse)
+### 漫反射
 模拟粗糙表面向各个方向均匀散射的光：
-$$I_{diffuse} = K_d \times \max(0, \mathbf{N} \cdot \mathbf{L}) \times C_{light} \times C_{object}$$
+$$I_{漫反射} = K_d \times \max(0, \mathbf{N} \cdot \mathbf{L}) \times C_{光源} \times C_{物体}$$
 
-### 镜面高光 (Specular)
+### 镜面高光
 模拟光滑表面反射的强光：
-$$I_{specular} = K_s \times \max(0, \mathbf{R} \cdot \mathbf{V})^n \times C_{light}$$
+$$I_{镜面高光} = K_s \times \max(0, \mathbf{R} \cdot \mathbf{V})^n \times C_{光源}$$
 
 **符号说明**：
 - $\mathbf{N}$：表面法向量
 - $\mathbf{L}$：指向光源的方向向量
 - $\mathbf{V}$：指向摄像机的方向向量
 - $\mathbf{R}$：光线的理想反射向量
-- $n$：高光指数（Shininess）
+- $n$：高光指数
 
 ## 场景设置
 
@@ -78,3 +78,8 @@ uv run python -m src.Work3.main
 - 实现精确的圆锥求交算法
 - 交互式参数调节，即时反馈渲染效果
 - 正确处理物体遮挡关系
+
+## 效果展示
+
+![Phong 光照模型演示](https://private-user-images.githubusercontent.com/182183290/615214780-2c230a0b-babc-4ab1-be80-30728feea765.mp4?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODI4MzAyNjgsIm5iZiI6MTc4MjgyOTk2OCwicGF0aCI6Ii8xODIxODMyOTAvNjE1MjE0NzgwLTJjMjMwYTBiLWJhYmMtNGFiMS1iZTgwLTMwNzI4ZmVlYTc2NS5tcDQ_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwNjMwJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDYzMFQxNDMyNDhaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT0xMDhjYTk2MDBmZWFmZDg3Nzc5MjdlNTY4NzQ3NThjZDMxNzM1Zjk0NDhjNGI5ODQ0NzE5YTcwYjQzMjYyYmEwJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9dmlkZW8lMkZtcDQifQ.GN-tuDOxzpen49IzL7reqOChAnymvFVxRtTufKCbZg0)
+

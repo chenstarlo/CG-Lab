@@ -118,6 +118,9 @@ def check_shadow(hit_pos, normal, light_pos):
     shadow_ray_origin = hit_pos + normal * EPSILON
 
     shadow_hit = ti.cast(False, ti.i32)
+    t1 = ti.cast(0.0, ti.f32)
+    t2 = ti.cast(0.0, ti.f32)
+    t3 = ti.cast(0.0, ti.f32)
 
     _, t1, _, _, _, _ = ray_sphere_intersect(shadow_ray_origin, light_dir_normalized, SPHERE_CENTER_1, SPHERE_RADIUS_1)
     if t1 > EPSILON and t1 < light_dist:
