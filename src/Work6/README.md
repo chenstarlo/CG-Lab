@@ -1,4 +1,4 @@
-# Work6: 质点-弹簧模型与数值积分
+# 实验七：质点-弹簧模型与数值积分
 
 **姓名：赵春哲 | 学号：202411998378 | 专业：人工智能**
 
@@ -90,12 +90,58 @@ $$f_{d} = -k_{d} v_{a}$$
   - 半隐式欧拉：稳定且能量守恒，推荐使用
   - 隐式欧拉：最稳定，可处理大时间步
 
+## 预期效果
+
+程序运行后，会在窗口中显示一个 3D 场景，包含一块悬挂的布料。布料会在重力作用下自然下垂，模拟真实的物理效果。右侧有控制面板，可以切换不同的数值积分方法。
+
+### 视觉效果
+
+- **蓝色布料**：由 20x20 网格质点组成，呈现蓝色半透明效果
+- **固定点**：布料顶部的两个角被固定，模拟悬挂效果
+- **重力效果**：布料自然下垂并摆动
+
+### 阻尼效果对比
+
+- **阻尼系数 1.0**：阻尼很大，布料快速稳定，摆动幅度小
+- **阻尼系数 0.1**：阻尼很小，布料摆动幅度大，需要较长时间才能稳定
+
+## 交互演示
+
+### 积分方法切换
+
+通过控制面板的三个按钮，可以切换不同的数值积分方法：
+
+1. **显式欧拉**：
+   - 最简单的积分方法
+   - 大时间步下容易发散（数值爆炸）
+   - 适合理解基本原理
+
+2. **半隐式欧拉**：
+   - 先更新速度，再用新速度更新位置
+   - 稳定且近似能量守恒
+   - 推荐使用的方法
+
+3. **隐式欧拉**：
+   - 使用未来时刻的状态计算受力
+   - 最稳定，可处理大时间步
+   - 使用定点迭代法近似求解
+
+### 阻尼效果观察
+
+- **高阻尼 (Kd=1.0)**：布料快速停止摆动，呈现"僵硬"效果
+- **低阻尼 (Kd=0.1)**：布料持续摆动，呈现"柔软"效果
+
+### 控制面板操作
+
+- **暂停按钮**：暂停物理模拟，布料保持当前状态
+- **重置按钮**：重置布料到初始状态，重新开始模拟
+
 ## 效果展示
 
-### 隐式欧拉积分演示
+### 阻尼系数 1.0 演示
 
-![隐式欧拉积分演示](https://private-user-images.githubusercontent.com/182183290/615251284-fa134db4-79c3-42e8-a676-c8acfb33e0d4.gif?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODI4MzQyNzgsIm5iZiI6MTc4MjgzMzk3OCwicGF0aCI6Ii8xODIxODMyOTAvNjE1MjUxMjg0LWZhMTM0ZGI0LTc5YzMtNDJlOC1hNjc2LWM4YWNmYjMzZTBkNC5naWY_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwNjMwJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDYzMFQxNTM5MzhaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1jZGVlNjJjMzc0NmQzYTE2MTc1N2M0YzBjMmEzNmUwYzZhNWRkZTMyMDg2OWI1YTM5NmZkNDIwNzViOGJjYmI1JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9aW1hZ2UlMkZnaWYifQ.AyCZ3_wr2ZcfBO9OozNawL39xzbZJYkEGvvXBza7r-k)
+![阻尼系数1.0演示](https://private-user-images.githubusercontent.com/182183290/615251284-fa134db4-79c3-42e8-a676-c8acfb33e0d4.gif?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODI4MzQyNzgsIm5iZiI6MTc4MjgzMzk3OCwicGF0aCI6Ii8xODIxODMyOTAvNjE1MjUxMjg0LWZhMTM0ZGI0LTc5YzMtNDJlOC1hNjc2LWM4YWNmYjMzZTBkNC5naWY_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwNjMwJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDYzMFQxNTM5MzhaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1jZGVlNjJjMzc0NmQzYTE2MTc1N2M0YzBjMmEzNmUwYzZhNWRkZTMyMDg2OWI1YTM5NmZkNDIwNzViOGJjYmI1JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9aW1hZ2UlMkZnaWYifQ.AyCZ3_wr2ZcfBO9OozNawL39xzbZJYkEGvvXBza7r-k)
 
-### 半隐式欧拉积分演示
+### 阻尼系数 0.1 演示
 
-![半隐式欧拉积分演示](https://private-user-images.githubusercontent.com/182183290/615251812-24d2bd73-7851-4699-8da2-6a0b95bad0e7.gif?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODI4MzQzNDMsIm5iZiI6MTc4MjgzNDA0MywicGF0aCI6Ii8xODIxODMyOTAvNjE1MjUxODEyLTI0ZDJiZDczLTc4NTEtNDY5OS04ZGEyLTZhMGI5NWJhZDBlNy5naWY_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwNjMwJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDYzMFQxNTQwNDNaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT0yMjk2MTI0MDMyMTUwMjFkZjFiNmZhMzE5OTc4MmRlODgxNzk3NzAxNTYzZGFjZWY0ZmU3ODYxMmQxZGJmOGYwJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9aW1hZ2UlMkZnaWYifQ.zqCbPwPsFXwKjQje3cXbnmYSfUv4phmopUjDFzqgmC0)
+![阻尼系数0.1演示](https://private-user-images.githubusercontent.com/182183290/615251812-24d2bd73-7851-4699-8da2-6a0b95bad0e7.gif?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODI4MzQzNDMsIm5iZiI6MTc4MjgzNDA0MywicGF0aCI6Ii8xODIxODMyOTAvNjE1MjUxODEyLTI0ZDJiZDczLTc4NTEtNDY5OS04ZGEyLTZhMGI5NWJhZDBlNy5naWY_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwNjMwJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDYzMFQxNTQwNDNaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT0yMjk2MTI0MDMyMTUwMjFkZjFiNmZhMzE5OTc4MmRlODgxNzk3NzAxNTYzZGFjZWY0ZmU3ODYxMmQxZGJmOGYwJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9aW1hZ2UlMkZnaWYifQ.zqCbPwPsFXwKjQje3cXbnmYSfUv4phmopUjDFzqgmC0)
