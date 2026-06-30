@@ -1,117 +1,68 @@
-# Work5: 可微光栅化与网格优化
+# Work5: 可微渲染与光源优化
 
 **姓名：赵春哲 | 学号：202411998378 | 专业：人工智能**
 
 ## 实验目标
 
-- 理解并掌握可微光栅化的原理，特别是在处理离散几何体（Mesh）边界时的数学近似方法
-- 掌握如何通过多视角的二维图像（剪影/RGB）反推并优化三维空间中的网格顶点坐标
-- 深刻理解在网格优化过程中，正则化对于防止拓扑崩坏和陷入局部最优的决定性作用
+- 理解可微渲染（Differentiable Rendering）的核心思想与应用场景。
+- 掌握基础正向光线投射管线（Ray Casting Pipeline）的构建。
+- 利用 Taichi 的自动微分（AutoDiff）机制，通过梯度下降法反向优化三维场景参数（如光源位置）。
+- 深入理解优化过程中的梯度消失问题，并学习在光照模型中引入特定的平滑/泄漏机制以保证梯度的连续传导。
 
 ## 实验原理
 
-将一个初始的"球体"通过梯度下降，逐渐"捏"成目标形状。这个过程需要解决两个问题：
+本实验的核心在于构建一个"渲染图像 $\rightarrow$ 计算误差 $\rightarrow$ 误差反传 $\rightarrow$ 更新参数"的完整闭环。
 
-### 防梯度消失：软光栅化 (Soft Rasterization)
+### 1. 正向渲染（Ray Casting）
 
-在传统渲染（硬光栅化）中，像素要么在三角形内，要么在三角形外。这种阶跃变化导致边界处的梯度为 0（即发生梯度消失），网络无法知道顶点该往哪个方向移动。
+对于屏幕上的每一个像素，发射一条射线，计算其与三维空间中球体的交点，并计算该交点处的法线与光照。
 
-软光栅化通过计算像素到三角形边缘的距离，并利用 Sigmoid 函数在边界处产生平滑的概率过渡：
+### 2. 光照模型与梯度传导
 
-$$A(d) = \text{sigmoid}\left(\frac{d}{\sigma}\right)$$
+标准的 Lambertian 漫反射模型公式为 $I = \max(0, \mathbf{n} \cdot \mathbf{l})$。在可微渲染中，直接使用该模型存在隐患：当顶点处于阴影中（即 $\mathbf{n} \cdot \mathbf{l} \le 0$）时，光照强度被截断为 0，导致梯度严格为 0。如果初始光源完全在球体背面，优化将陷入停滞。
 
-其中 $\sigma$ 控制边缘的模糊程度。
+为此，我们采用 Leaky Lambertian（泄漏漫反射）模型，给予背光面微小的光照响应：
 
-### 防局部最优：网格正则化 (Mesh Regularization)
+$$I = \max(\alpha (\mathbf{n} \cdot \mathbf{l}), \mathbf{n} \cdot \mathbf{l})$$
 
-仅依靠图像差异（Loss）去移动顶点会导致顶点交叉、重叠，变成一团"刺猬"。必须引入三种正则化损失：
+其中 $\alpha$ 为一个小常数（如 0.1）。这样即使光源处于暗处，也能获得指向正确方向的梯度，引导光源"跨越黑暗"来到正面。
 
-- **拉普拉斯平滑 (Laplacian Smoothing)**：约束相邻顶点，防止表面出现尖锐突起
-- **边长一致性 (Edge Length Penalty)**：惩罚过长或过短的边，防止三角形严重拉伸
-- **法线一致性 (Normal Consistency)**：约束相邻三角形面的法线方向接近，保持表面平滑
+### 3. 损失函数（Loss Function）
 
-总 Loss 公式：
+采用均方误差（MSE）来衡量当前渲染图像 $I_{render}$ 与目标图像 $I_{target}$ 之间的差异：
 
-$$L_{total} = L_{silhouette} + w_{lap}L_{lap} + w_{edge}L_{edge} + w_{normal}L_{normal}$$
+$$L = \frac{1}{N} \sum_{i=1}^{N} (I_{render}^{(i)} - I_{target}^{(i)})^2$$
 
-## 环境配置
+### 4. 优化算法
 
-```bash
-# 安装PyTorch（建议使用CUDA版本以加速）
-pip install torch torchvision
+由于简单的随机梯度下降（SGD）容易在优化后期产生震荡或陷入局部最优，本实验采用 Adam 优化器。它引入了动量（Momentum）机制，能够显著加快收敛速度并使得参数更新轨迹更加平滑。
 
-# 安装PyTorch3D（Windows用户建议通过Conda安装）
-# conda install pytorch pytorch torchvision cudatoolkit=11.3 -c pytorch
-# pip install pytorch3d
+## 实验任务与步骤
 
-# 其他依赖
-pip install matplotlib numpy
-```
+### 任务1：构建场景与目标图像
 
-## 算法实现
+- 定义一个半径为 0.3，中心点在 (0.5, 0.5, 0.5) 的三维球体。
+- 设定目标光源位置为 (0.8, 0.8, 0.2)，编写正向渲染核函数，生成并保存一张"目标渲染图"作为 Ground Truth。
 
-### 软光栅化
+### 任务2：构建可微渲染管线
 
-核心思想：对于每个像素，计算其到三角形边缘的符号距离，使用 Sigmoid 函数产生平滑的概率过渡。
+- 将待优化的光源位置 light_pos 声明为支持求导的 Taichi Field（设置 needs_grad=True）。
+- 实现带有 Leaky 机制的光照核函数，并计算当前渲染图像与目标图像的 MSE Loss。注意：计算 Loss 时必须保留光照强度的负值部分，不可提前将其截断为 0，否则将破坏梯度的反向传播。
 
-```python
-def soft_rasterize(verts, faces, camera_pos, sigma=1.0/IMAGE_SIZE):
-    # 1. 将3D顶点投影到2D屏幕坐标
-    # 2. 对每个像素，计算到三角形边缘的最近距离 d
-    # 3. 使用 sigmoid(d / sigma) 计算该像素被覆盖的概率
-    # 4. 概率平滑地从0过渡到1，避免硬边界
-```
+### 任务3：执行反向传播与参数更新
 
-### 拉普拉斯平滑损失
+- 设定一个偏差较大的初始光源位置（如 (0.2, 0.2, 0.8)，使其位于球体偏背面）。
+- 使用 ti.ad.Tape(loss) 记录计算图并自动求导。
+- 在主循环中实现 Adam 优化器，利用 light_pos.grad 更新光源坐标。
 
-通过图的拉普拉斯矩阵约束相邻顶点的位置差异：
+### 任务4：过程可视化
 
-$$L_{lap} = \frac{1}{N} \sum_{i=1}^{N} || \sum_{j \in N(i)} (v_i - v_j) ||^2$$
+- 使用 ti.GUI 实时并排显示"目标图像"与"当前渲染图像"。
 
-### 边长一致性损失
+### 选做任务
 
-惩罚边长偏离目标值（通常为网格的平均边长）：
-
-$$L_{edge} = \frac{1}{M} \sum_{e \in Edges} (||e|| - l_{target})^2$$
-
-### 法线一致性损失
-
-约束共享同一条边的两个三角形的法线方向接近：
-
-$$L_{normal} = \frac{1}{E} \sum_{(i,j) \in Edges} (1 - n_i \cdot n_j)$$
-
-### 优化循环
-
-```python
-deform_verts = source_sphere_verts.clone()
-deform_verts.requires_grad_(True)
-optimizer = torch.optim.Adam([deform_verts], lr=0.01)
-
-for iteration in range(NUM_ITERATIONS):
-    optimizer.zero_grad()
-
-    # 多视角剪影损失
-    total_silhouette_loss = 0
-    for cam_pos in camera_views:
-        rendered = soft_rasterize(deform_verts, faces, cam_pos)
-        total_silhouette_loss += MSE(rendered, target_silhouette[cam_pos])
-
-    # 正则化损失
-    lap_loss = compute_laplacian_loss(deform_verts, faces)
-    edge_loss = compute_edge_length_loss(deform_verts, faces)
-    normal_loss = compute_normal_consistency_loss(deform_verts, faces)
-
-    # 总损失
-    total_loss = (
-        total_silhouette_loss / NUM_VIEWS +
-        LAPLACIAN_WEIGHT * lap_loss +
-        EDGE_WEIGHT * edge_loss +
-        NORMAL_WEIGHT * normal_loss
-    )
-
-    total_loss.backward()
-    optimizer.step()
-```
+- **多参数联合优化**：尝试将球体的漫反射颜色设为可微参数，设定一个错误的初始颜色，让程序同时优化光源位置与物体颜色。
+- **高阶光照模型**：将光照模型升级为 Blinn-Phong，并尝试对高光指数（Shininess）进行自动寻优。
 
 ## 交互说明
 
@@ -123,45 +74,39 @@ uv run python -m src.Work5.main
 
 程序将自动：
 
-1. 创建目标网格（椭球体作为简化奶牛形状）
-2. 创建源网格（高细分球体）
-3. 从 8 个不同视角渲染目标剪影
-4. 执行 500 次迭代优化
-5. 实时显示优化过程图像
+1. 创建目标场景（球体 + 目标光源位置）
+2. 生成目标渲染图像作为 Ground Truth
+3. 使用错误的初始光源位置开始优化
+4. 实时显示目标图像与当前渲染图像的对比
 
 ## 参数说明
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
 | IMAGE_SIZE | 256 | 渲染图像分辨率 |
-| NUM_VIEWS | 8 | 相机视角数量 |
-| SIGMA | 1/256 | 软光栅化模糊程度 |
-| LEARNING_RATE | 0.01 | 优化器学习率 |
+| LEARNING_RATE | 0.01 | Adam 优化器学习率 |
 | NUM_ITERATIONS | 500 | 优化迭代次数 |
-| VISUALIZE_EVERY | 50 | 可视化间隔 |
-| LAPLACIAN_WEIGHT | 1.0 | 拉普拉斯正则化权重 |
-| EDGE_WEIGHT | 0.5 | 边长正则化权重 |
-| NORMAL_WEIGHT | 0.3 | 法线正则化权重 |
+| LEAKY_ALPHA | 0.1 | Leaky Lambertian 的泄漏系数 |
+| SPHERE_CENTER | (0.5, 0.5, 0.5) | 球体中心点坐标 |
+| SPHERE_RADIUS | 0.3 | 球体半径 |
+| TARGET_LIGHT | (0.8, 0.8, 0.2) | 目标光源位置 |
+| INIT_LIGHT | (0.2, 0.2, 0.8) | 初始光源位置 |
 
 ## 实验观察要点
 
-1. **观察梯度消失问题**：如果不使用软光栅化，边界梯度为0，顶点无法正确移动
-2. **观察正则化作用**：增加正则化权重使网格更平滑，但可能降低目标匹配精度
-3. **观察多视角约束**：单视角优化会产生歧义，多视角确保3D一致性
-4. **观察迭代过程**：球体逐渐"捏"成目标椭球形状
+1. **观察梯度消失问题**：如果不使用 Leaky Lambertian，当光源在球体背面时梯度为0，优化将停滞
+2. **观察 Adam 动量效果**：坐标在逼近目标位置时可能会出现轻微超调（Overshoot），随后快速收敛
+3. **观察 Loss 变化**：初期 Loss 下降较慢，当光源绕到正面后，Loss 会发生断崖式下降
+4. **观察高光斑移动**：右侧渲染图的高光斑从错误位置平滑移动并最终与左侧目标图像完全重合
 
 ## 实现特性
 
-- 使用 PyTorch 自动微分实现梯度计算
-- 多视角剪影融合确保 3D 重建完整性
-- 三种正则化协同防止网格退化
-- 实时可视化优化过程
-- 支持提前中断（Ctrl+C）查看当前结果
+- 使用 Taichi 自动微分实现梯度计算
+- Leaky Lambertian 模型保证梯度连续传导
+- Adam 优化器加速收敛并减少震荡
+- 实时可视化目标图像与当前渲染图像对比
+- 支持提前中断（ESC）查看当前结果
 
 ## 效果展示
 
-![可微光栅化与网格优化演示](待补充)
-
-### 演示说明
-
-请上传你的演示视频或截图，替换上面的链接地址。
+![可微渲染与光源优化演示](待补充)

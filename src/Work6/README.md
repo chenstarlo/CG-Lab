@@ -1,0 +1,96 @@
+# Work6: 质点-弹簧模型与数值积分
+
+**姓名：赵春哲 | 学号：202411998378 | 专业：人工智能**
+
+## 实验目标
+
+- 掌握动态场景渲染：了解并使用 Taichi 框架构建 3D 场景，学习使用 Taichi GGUI 编写交互面板。
+- 理解质点-弹簧模型：掌握基于物理的弹力与阻尼力计算方法，并处理数值爆炸问题（如速度钳制）。
+- 对比数值积分方法：独立编写并比较三种常见的数值积分求解器（显式欧拉、半隐式欧拉、隐式欧拉），观察并理解它们在物理模拟中的稳定性差异。
+- 理解 GPU 编程基础：学习 Taichi 中的 ti.kernel 与 ti.func，了解并行计算中的状态同步与 Kernel 启动开销优化。
+
+## 实验原理
+
+### 2.1 质点-弹簧模型 (Mass-Spring Model)
+
+质点-弹簧系统是计算机图形学中最经典的变形体模拟方法之一。我们将布料离散化为网格状的质点集合，质点之间通过弹簧相连（本实验基础要求实现结构弹簧）。
+
+根据胡克定律 (Hooke's Law)，两个质点 $$a$$ 和 $$b$$ 之间的弹力公式为：
+
+$$f_{a} = -k_{s} (|x_a - x_b| - l) \frac{x_a - x_b}{|x_a - x_b|}$$
+
+其中 $$k_s$$ 为弹簧的劲度系数，$$l$$ 为弹簧的原长，$$x$$ 为质点位置。同时，为了防止系统能量无限增加导致发散，我们需要引入阻尼力 (Damping force)：
+
+$$f_{d} = -k_{d} v_{a}$$
+
+### 2.2 数值积分方法 (Numerical Integration)
+
+根据牛顿第二定律，质点的加速度 $$a = F/m$$。在离散的时间步 $$\Delta t$$ 内，我们需要通过数值积分更新质点的速度 $$v$$ 和位置 $$x$$。
+
+- **显式欧拉 (Explicit Euler)**：完全使用当前时刻的状态来预测下一时刻。
+  $$x_{t+1} = x_{t} + v_{t} \Delta t$$
+  $$v_{t+1} = v_{t} + a_{t} \Delta t$$
+
+- **半隐式欧拉 (Semi-Implicit / Symplectic Euler)**：先更新速度，然后使用更新后的速度来更新位置。
+  $$v_{t+1} = v_{t} + a_{t} \Delta t$$
+  $$x_{t+1} = x_{t} + v_{t+1} \Delta t$$
+
+- **隐式欧拉 (Implicit / Backward Euler)**：使用未来时刻的状态来计算受力（本实验使用定点迭代法近似求解）。
+  $$v_{t+1} = v_{t} + a_{t+1} \Delta t$$
+  $$x_{t+1} = x_{t} + v_{t+1} \Delta t$$
+
+## 实现细节
+
+### 3.1 场景初始化
+
+- 定义布料的网格大小为 20x20，共 400 个质点
+- 初始化质点的位置、速度、受力和弹簧的拓扑结构
+- 使用多个 `@ti.kernel` 保证 GPU 计算状态的同步：
+  - `init_positions()`：初始化质点位置和固定点
+  - `init_springs()`：初始化弹簧连接关系
+
+### 3.2 力学计算与防爆处理
+
+- `compute_forces_on()`：计算重力、阻尼力，并累加弹簧力（使用 `ti.atomic_add` 避免多线程写入冲突）
+- `clamp_velocity()`：限制质点的最大速度，防止数值爆炸
+- 使用 `@ti.func` 声明，编译时强制内联，减少 GPU 函数调用开销
+
+### 3.3 积分求解器实现
+
+- `step_explicit()`：显式欧拉积分
+- `step_semi_implicit()`：半隐式欧拉积分
+- `step_implicit_iter()`：隐式欧拉积分（使用 3 次定点迭代）
+
+### 3.4 渲染与 GGUI 交互
+
+- 使用 Taichi 的 `ti.ui.Window` 构建 3D 场景
+- `window.GUI` 控制面板功能：
+  - 按钮切换三种积分方法（显式欧拉、半隐式欧拉、隐式欧拉）
+  - 暂停/继续按钮
+  - 重置按钮
+
+## 参数设置
+
+| 参数 | 值 | 说明 |
+|------|-----|------|
+| GRID_SIZE | 20 | 布料网格大小 |
+| REST_LENGTH | 0.08 | 弹簧原长 |
+| SPRING_K | 200.0 | 弹簧劲度系数 |
+| DAMPING_K | 0.5 | 阻尼系数 |
+| MASS | 0.1 | 质点质量 |
+| GRAVITY | 9.8 | 重力加速度 |
+| DELTA_T | 0.01 | 时间步长 |
+| MAX_VELOCITY | 5.0 | 最大速度（防爆） |
+
+## 操作说明
+
+- **鼠标右键 + 拖动**：旋转视角
+- **控制面板**：
+  - 显式欧拉：最简单但不稳定，大时间步下容易发散
+  - 半隐式欧拉：稳定且能量守恒，推荐使用
+  - 隐式欧拉：最稳定，可处理大时间步
+
+## 效果展示
+
+![质点-弹簧模型演示](https://private-user-images.githubusercontent.com/182183290/615251284-fa134db4-79c3-42e8-a676-c8acfb33e0d4.gif?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODI4MzQyNzgsIm5iZiI6MTc4MjgzMzk3OCwicGF0aCI6Ii8xODIxODMyOTAvNjE1MjUxMjg0LWZhMTM0ZGI0LTc5YzMtNDJlOC1hNjc2LWM4YWNmYjMzZTBkNC5naWY_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwNjMwJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDYzMFQxNTM5MzhaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1jZGVlNjJjMzc0NmQzYTE2MTc1N2M0YzBjMmEzNmUwYzZhNWRkZTMyMDg2OWI1YTM5NmZkNDIwNzViOGJjYmI1JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9aW1hZ2UlMkZnaWYifQ.AyCZ3_wr2ZcfBO9OozNawL39xzbZJYkEGvvXBza7r-k)
+(https://private-user-images.githubusercontent.com/182183290/615251812-24d2bd73-7851-4699-8da2-6a0b95bad0e7.gif?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODI4MzQzNDMsIm5iZiI6MTc4MjgzNDA0MywicGF0aCI6Ii8xODIxODMyOTAvNjE1MjUxODEyLTI0ZDJiZDczLTc4NTEtNDY5OS04ZGEyLTZhMGI5NWJhZDBlNy5naWY_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwNjMwJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDYzMFQxNTQwNDNaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT0yMjk2MTI0MDMyMTUwMjFkZjFiNmZhMzE5OTc4MmRlODgxNzk3NzAxNTYzZGFjZWY0ZmU3ODYxMmQxZGJmOGYwJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9aW1hZ2UlMkZnaWYifQ.zqCbPwPsFXwKjQje3cXbnmYSfUv4phmopUjDFzqgmC0)

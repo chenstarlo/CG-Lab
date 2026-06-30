@@ -8,3 +8,9 @@ output.txt
 test.txt
 work5_result.png
 work5_views.png
+
+# SMPL model files (too large for Git)
+*.pkl
+*.npz
+*.pt
+*.pth
