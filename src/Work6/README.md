@@ -140,8 +140,8 @@ $$f_{d} = -k_{d} v_{a}$$
 
 ### 阻尼系数 1.0 演示
 
-![阻尼系数1.0演示](https://github.com/chenstarlo/CG-Lab/raw/main/src/Work6/WORK61.gif)
+![阻尼系数1.0演示](https://raw.githubusercontent.com/chenstarlo/CG-Lab/main/src/Work6/WORK61.gif)
 
 ### 阻尼系数 0.1 演示
 
-![阻尼系数0.1演示](https://github.com/chenstarlo/CG-Lab/raw/main/src/Work6/WORK62.gif)
+![阻尼系数0.1演示](https://raw.githubusercontent.com/chenstarlo/CG-Lab/main/src/Work6/WORK62.gif)

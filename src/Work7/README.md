@@ -131,36 +131,36 @@ uv run python -m src.Work7.main
 
 ### 模板网格与关节权重
 
-![模板网格与关节权重](https://github.com/chenstarlo/CG-Lab/raw/main/src/Work7/outputs/stage_a_template_weights.png)
+![模板网格与关节权重](https://raw.githubusercontent.com/chenstarlo/CG-Lab/main/src/Work7/outputs/stage_a_template_weights.png)
 
 展示 T-pose 模板网格以及左肩关节的权重热力图，颜色越亮表示该关节对顶点的影响越强。
 
 ### 全关节主导权重分布
 
-![全关节主导权重分布](https://github.com/chenstarlo/CG-Lab/raw/main/src/Work7/outputs/all_joint_weights.png)
+![全关节主导权重分布](https://raw.githubusercontent.com/chenstarlo/CG-Lab/main/src/Work7/outputs/all_joint_weights.png)
 
 每个面片根据"主导影响关节"分配颜色，直观展示 SMPL 模板网格各区域主要受哪些关节控制。
 
 ### 形状校正与关节回归
 
-![形状校正与关节回归](https://github.com/chenstarlo/CG-Lab/raw/main/src/Work7/outputs/stage_b_shaped_joints.png)
+![形状校正与关节回归](https://raw.githubusercontent.com/chenstarlo/CG-Lab/main/src/Work7/outputs/stage_b_shaped_joints.png)
 
 设置非零 shape 参数 β 后，人体体型发生变化，关节点（红色）由形状后的网格回归得到，位于身体内部合理位置。
 
 ### 姿态校正偏移量
 
-![姿态校正偏移量](https://github.com/chenstarlo/CG-Lab/raw/main/src/Work7/outputs/stage_c_pose_offsets.png)
+![姿态校正偏移量](https://raw.githubusercontent.com/chenstarlo/CG-Lab/main/src/Work7/outputs/stage_c_pose_offsets.png)
 
 姿态相关校正主要集中在发生弯曲的部位附近（如肘部、肩部），颜色越亮表示 pose_offsets 越大。
 
 ### 完整 LBS 蒙皮结果
 
-![完整LBS蒙皮结果](https://github.com/chenstarlo/CG-Lab/raw/main/src/Work7/outputs/stage_d_lbs_result.png)
+![完整LBS蒙皮结果](https://raw.githubusercontent.com/chenstarlo/CG-Lab/main/src/Work7/outputs/stage_d_lbs_result.png)
 
 经过 LBS 之后，人体进入最终姿态，关节点跟随骨骼一起运动，呈现自然的弯曲效果。
 
 ### 四阶段对比图
 
-![四阶段对比图](https://github.com/chenstarlo/CG-Lab/raw/main/src/Work7/outputs/comparison_grid.png)
+![四阶段对比图](https://raw.githubusercontent.com/chenstarlo/CG-Lab/main/src/Work7/outputs/comparison_grid.png)
 
 将 (a) 模板 + 权重、(b) 形状 + 关节、(c) 姿态偏移、(d) 最终蒙皮四个阶段排成 2×2 对比图，差异一目了然。
