@@ -108,7 +108,7 @@ uv run python -m src.Work0.main
 
 ## 效果展示
 
-![粒子系统效果](https://raw.githubusercontent.com/chenstarlo/CG-Lab/main/src/Work0/WORK0.gif)
+![粒子系统效果](WORK0.gif)
 
 ### 交互演示
 

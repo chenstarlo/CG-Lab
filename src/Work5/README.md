@@ -150,4 +150,4 @@ uv run python -m src.Work5.main
 
 ## 效果展示
 
-![可微渲染与光源优化演示](https://raw.githubusercontent.com/chenstarlo/CG-Lab/main/src/Work5/work5.gif)
+![可微渲染与光源优化演示](work5.gif)
