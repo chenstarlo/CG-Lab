@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+imgui.ini
+output.txt
+test.txt
+work5_result.png
+work5_views.png

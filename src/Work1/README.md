@@ -1,5 +1,7 @@
 # Work1: 3D 坐标变换实验
 
+**姓名：赵春哲 | 学号：202411998378 | 专业：人工智能**
+
 基于 Taichi 框架的 3D 坐标变换与 MVP 矩阵实现
 
 ## 实验简介
@@ -110,4 +112,4 @@ uv run python -m src.Work1.main
 
 ### 演示效果
 
-![3D 坐标变换演示](https://private-user-images.githubusercontent.com/182183290/569706196-fd304a95-caa8-4be2-818b-0e287942def2.gif?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NzQ1MjU2NzAsIm5iZiI6MTc3NDUyNTM3MCwicGF0aCI6Ii8xODIxODMyOTAvNTY5NzA2MTk2LWZkMzA0YTk1LWNhYTgtNGJlMi04MThiLTBlMjg3OTQyZGVmMi5naWY_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwMzI2JTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDMyNlQxMTQyNTBaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT0zOTdiODg3YTc3YmFjNjUwYWU0Y2E3MWQxODVlMmFkNmVkYjRjYWJhNzBhYmFlOGJiNTE1OTcyNDNkNjk0NTNiJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.A_houadOIpinpx30a0Im3uoz-Tt2ihm3u3CjCAouc70)
+![3D 坐标变换演示](https://github.com/chenstarlo/CG-Lab/issues/4#issue-4143083365)

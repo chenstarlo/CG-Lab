@@ -1,11 +1,19 @@
-import taichi as ti 
-import math 
+import taichi as ti
+import math
 
-# 初始化 Taichi，指定使用 CPU 后端 
-ti.init(arch=ti.cpu) 
+# 初始化 Taichi，指定使用 CPU 后端
+ti.init(arch=ti.cpu)
 
-# 声明 Taichi 的 Field 来存储顶点和转换后的屏幕坐标 
-vertices = ti.Vector.field(3, dtype=ti.f32, shape=3) 
+# 常量定义
+SCREEN_RES = (700, 700)
+FOV = 45.0
+NEAR_PLANE = 0.1
+FAR_PLANE = 50.0
+CAMERA_DISTANCE = 5.0
+ROTATION_SPEED = 10.0
+
+# 声明 Taichi 的 Field 来存储顶点和转换后的屏幕坐标
+vertices = ti.Vector.field(3, dtype=ti.f32, shape=3)
 screen_coords = ti.Vector.field(2, dtype=ti.f32, shape=3) 
 
 @ti.func 
@@ -79,15 +87,15 @@ def get_projection_matrix(eye_fov: ti.f32, aspect_ratio: ti.f32, zNear: ti.f32, 
     # 返回组合矩阵 
     return M_ortho @ M_p2o 
 
-@ti.kernel 
-def compute_transform(angle: ti.f32): 
-    """ 
-    在并行架构上计算顶点的坐标变换 
+@ti.kernel
+def compute_transform(angle: ti.f32):
     """
-    eye_pos = ti.Vector([0.0, 0.0, 5.0]) 
-    model = get_model_matrix(angle) 
-    view = get_view_matrix(eye_pos) 
-    proj = get_projection_matrix(45.0, 1.0, 0.1, 50.0) 
+    在并行架构上计算顶点的坐标变换
+    """
+    eye_pos = ti.Vector([0.0, 0.0, CAMERA_DISTANCE])
+    model = get_model_matrix(angle)
+    view = get_view_matrix(eye_pos)
+    proj = get_projection_matrix(FOV, 1.0, NEAR_PLANE, FAR_PLANE) 
     
     # MVP 矩阵：右乘原则 
     mvp = proj @ view @ model 
@@ -105,23 +113,23 @@ def compute_transform(angle: ti.f32):
         screen_coords[i][0] = (v_ndc[0] + 1.0) / 2.0 
         screen_coords[i][1] = (v_ndc[1] + 1.0) / 2.0 
 
-def main(): 
-    # 初始化三角形顶点 
-    vertices[0] = [2.0, 0.0, -2.0] 
-    vertices[1] = [0.0, 2.0, -2.0] 
-    vertices[2] = [-2.0, 0.0, -2.0] 
+def main():
+    # 初始化三角形顶点
+    vertices[0] = [2.0, 0.0, -2.0]
+    vertices[1] = [0.0, 2.0, -2.0]
+    vertices[2] = [-2.0, 0.0, -2.0]
     
-    # 创建 GUI 窗口 
-    gui = ti.GUI("3D Transformation (Taichi)", res=(700, 700)) 
-    angle = 0.0 
+    # 创建 GUI 窗口
+    gui = ti.GUI("3D Transformation (Taichi)", res=SCREEN_RES)
+    angle = 0.0
     
-    while gui.running: 
-        if gui.get_event(ti.GUI.PRESS): 
-            if gui.event.key == 'a': 
-                angle += 10.0 
-            elif gui.event.key == 'd': 
-                angle -= 10.0 
-            elif gui.event.key == ti.GUI.ESCAPE: 
+    while gui.running:
+        if gui.get_event(ti.GUI.PRESS):
+            if gui.event.key == 'a':
+                angle += ROTATION_SPEED
+            elif gui.event.key == 'd':
+                angle -= ROTATION_SPEED
+            elif gui.event.key == ti.GUI.ESCAPE:
                 gui.running = False 
         
         # 计算变换 
