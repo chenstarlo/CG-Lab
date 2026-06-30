@@ -213,5 +213,5 @@ P(t) = Σ P_i * N_{i,p}(t)
 
 ## 效果展示
 
-![贝塞尔曲线与B样条曲线演示](WORK2.gif)
+![贝塞尔曲线与B样条曲线演示](https://github.com/chenstarlo/CG-Lab/raw/main/src/Work2/WORK2.gif)
 

@@ -112,4 +112,4 @@ uv run python -m src.Work1.main
 
 ### 演示效果
 
-![3D 坐标变换演示](WORK1.gif)
+![3D 坐标变换演示](https://github.com/chenstarlo/CG-Lab/raw/main/src/Work1/WORK1.gif)

@@ -133,5 +133,5 @@ uv run python -m src.Work4.main
 
 ## 效果展示
 
-![Whitted-Style 光线追踪演示](WORK4.gif)
+![Whitted-Style 光线追踪演示](https://github.com/chenstarlo/CG-Lab/raw/main/src/Work4/WORK4.gif)
 

@@ -116,5 +116,5 @@ uv run python -m src.Work3.main
 
 ## 效果展示
 
-![Phong 光照模型演示](WORK3.gif)
+![Phong 光照模型演示](https://github.com/chenstarlo/CG-Lab/raw/main/src/Work3/WORK3.gif)
 
